@@ -10,11 +10,12 @@ phases:
       - mv apache-maven-3.9.6 /opt/maven
       - export M2_HOME=/opt/maven
       - export PATH=$M2_HOME/bin:$PATH
-      - mvn -version
+      - echo "✅ Maven 버전 확인:"
+      - /opt/maven/bin/mvn -version
   build:
     commands:
       - echo "🚀 프로젝트 빌드 시작!"
-      - mvn clean package
+      - /opt/maven/bin/mvn clean package
 
 artifacts:
   files:
