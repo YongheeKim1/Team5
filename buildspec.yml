@@ -4,8 +4,16 @@ phases:
   install:
     runtime-versions:
       java: corretto17
+    commands:
+      - echo "📦 Maven 설치 중..."
+      - curl -sL https://downloads.apache.org/maven/maven-3/3.9.6/binaries/apache-maven-3.9.6-bin.tar.gz | tar -xz
+      - mv apache-maven-3.9.6 /opt/maven
+      - export M2_HOME=/opt/maven
+      - export PATH=$M2_HOME/bin:$PATH
+      - mvn -version
   build:
     commands:
+      - echo "🚀 프로젝트 빌드 시작!"
       - mvn clean package
 
 artifacts:
