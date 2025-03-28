@@ -24,8 +24,8 @@ public class PapagoService {
         headers.set("X-NCP-APIGW-API-KEY", CLIENT_SECRET);
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("source", sourceLang);
-        params.add("target", targetLang);
+        params.add("source", sourceLang);   // 예: "ko"
+        params.add("target", targetLang);   // 예: "ja"
         params.add("text", text);
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
@@ -34,12 +34,6 @@ public class PapagoService {
         ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
 
         return extractTranslatedText(response.getBody());
-    }
-
-    public String translateByDirection(String text, String direction) {
-        String source = direction.equals("ja2ko") ? "ja" : "ko";
-        String target = direction.equals("ja2ko") ? "ko" : "ja";
-        return translate(text, source, target);
     }
 
     private String extractTranslatedText(String json) {
@@ -51,5 +45,8 @@ public class PapagoService {
             e.printStackTrace();
             return "(번역 실패)";
         }
+       }
     }
-}
+
+    
+    

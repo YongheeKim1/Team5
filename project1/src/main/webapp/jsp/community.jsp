@@ -29,11 +29,8 @@
                 const titleEl = document.getElementById('post-link-' + id);
                 const contentEl = document.getElementById('post-content-' + id);
 
-                if (!this.dataset.originalTitle) {
-                    this.dataset.originalTitle = titleEl.textContent;
-                    this.dataset.originalContent = contentEl.textContent;
-                }
-
+                const originalTitle = this.dataset.originalTitle || titleEl.textContent;
+                const originalContent = this.dataset.originalContent || contentEl.textContent;
                 const isTranslated = this.dataset.translated === 'true';
 
                 if (isTranslated) {
@@ -42,13 +39,16 @@
                     this.textContent = MSG_TRANSLATE;
                     this.dataset.translated = 'false';
                 } else {
+                    this.dataset.originalTitle = originalTitle;
+                    this.dataset.originalContent = originalContent;
+
                     fetch('/project1/api/translate/post', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                         body: new URLSearchParams({
-                            title: this.dataset.originalTitle,
-                            content: this.dataset.originalContent,
-                            direction: 'ja2ko'
+                            title: originalTitle,
+                            content: originalContent,
+                            direction: 'ko2ja'
                         })
                     })
                     .then(response => response.json())
@@ -66,7 +66,7 @@
             });
         });
     });
-</script>
+    </script>
     <style>
         .community-title { text-align: center; font-size: 2em; margin: 20px 0; }
         .community-box { width: 80%; max-width: 800px; margin: 0 auto; background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
@@ -77,7 +77,7 @@
         .post p { color: #666; }
         .post-meta { font-size: 12px; color: #999; }
         .post-actions { display: flex; flex-direction: column; gap: 5px; }
-        .delete-btn { display: block; text-align: center; background-color: #ce1919; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; }
+        .delete-btn { background-color: #ce1919; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; }
         .delete-btn:hover { background-color: #b61717; }
         .create-post-btn { display: block; width: 80%; max-width: 800px; margin: 20px auto; text-align: center; padding: 10px; background-color: #19ce60; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; }
         .create-post-btn:hover { background-color: #17b655; }
@@ -90,60 +90,65 @@
 </head>
 
 <body>
-    <header><div class="container"><h1 class="community-title"><spring:message code="community.title"/></h1></div></header>
+    <header>
+        <div class="container">
+            <h1 class="community-title"><spring:message code="community.title"/></h1>
+        </div>
+    </header>
     
     <div class="container">
-    	<main>
-		    <button class="create-post-btn" onclick="togglePostForm()">
-		    	<spring:message code="community.createPost"/>
-		    </button>
-		    <div id="post-form">
-		        <form action="/project1/post/create" method="POST">
-		            <input type="text" name="title" placeholder="<spring:message code='community.title.input'/>" required>
-		            <textarea name="content" placeholder="<spring:message code='community.content.input'/>" required></textarea>
-		            <button type="submit"><spring:message code="community.submit"/></button>
-		        </form>
-		    </div>
+        <main>
+            <button class="create-post-btn" onclick="togglePostForm()">
+                <spring:message code="community.createPost"/>
+            </button>
+            <div id="post-form">
+                <form action="/project1/post/create" method="POST">
+                    <input type="text" name="title" placeholder="<spring:message code='community.title.input'/>" required>
+                    <textarea name="content" placeholder="<spring:message code='community.content.input'/>" required></textarea>
+                    <button type="submit"><spring:message code="community.submit"/></button>
+                </form>
+            </div>
 
-		    <div class="community-box">
-		        <h2><spring:message code="community.postList"/></h2>
-		        <p>🔔 <spring:message code="community.postCount"/>: ${posts.size()}</p>
-		
-		        <c:choose>
-		            <c:when test="${not empty posts}">
-		                <c:forEach var="post" items="${posts}">
-		                    <div class="post" id="post-${post.id}">
-		                        <div class="info">
-		                            <h3>
-		                                <a id="post-link-${post.id}" href="/project1/post/view?id=${post.id}">
-		                                    ${post.title}
-		                                </a>
-		                            </h3>
-		                            <p id="post-content-${post.id}">${post.content}</p>
-		                            <div class="post-meta">
-		                            	<spring:message code="community.author"/>: ${post.author} | 
-                                    	<spring:message code="community.date"/>: ${post.createdAt}
-									</div>
-					                <button type="button" class="translate-btn" data-id="${post.id}"><spring:message code="community.translate"/></button>
-		                        </div>		                        
-		                        <div class="post-actions">
-		                            <form action="/project1/post/delete" method="POST">
-		                                <input type="hidden" name="id" value="${post.id}">
-		                                <button class="delete-btn" type="submit" style="width: 55px; height: 35px;">
-		                                	<spring:message code="community.delete"/>
-		                                </button>
-		                            </form>
-		                        </div>
-		                        
-		                    </div>
-		                </c:forEach>
-		            </c:when>
-		            <c:otherwise>
+            <div class="community-box">
+                <h2><spring:message code="community.postList"/></h2>
+                <p>🔔 <spring:message code="community.postCount"/>: ${posts.size()}</p>
+
+                <c:choose>
+                    <c:when test="${not empty posts}">
+                        <c:forEach var="post" items="${posts}">
+                            <div class="post" id="post-${post.id}">
+                                <div class="info">
+                                    <h3>
+                                        <a id="post-link-${post.id}" href="/project1/post/view?id=${post.id}">
+                                            ${post.title}
+                                        </a>
+                                    </h3>
+                                    <p id="post-content-${post.id}">${post.content}</p>
+                                    <div class="post-meta">
+                                        <spring:message code="community.author"/>: ${post.author} | 
+                                        <spring:message code="community.date"/>: ${post.createdAt}
+                                    </div>
+                                    <button type="button" class="translate-btn" data-id="${post.id}">
+                                        <spring:message code="community.translate"/>
+                                    </button>
+                                </div>
+                                <div class="post-actions">
+                                    <form action="/project1/post/delete" method="POST">
+                                        <input type="hidden" name="id" value="${post.id}">
+                                        <button class="delete-btn" type="submit" style="width: 55px; height: 35px;">
+                                            <spring:message code="community.delete"/>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </c:forEach>
+                    </c:when>
+                    <c:otherwise>
                         <p><spring:message code="community.empty"/></p>
                     </c:otherwise>
                 </c:choose>
-    		</div>
-    	</main>
+            </div>
+        </main>
     </div>
 
     <footer>
