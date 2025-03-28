@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.jsonExam.member.UserMapper">
+
+    <!-- 회원가입 -->
+    <insert id="insertUser">
+        INSERT INTO users (id, pw, confirm, user_name, postcode, address, detail_address, mobile)
+        VALUES (#{id}, #{pw}, #{confirm}, #{userName}, #{postcode}, #{address}, #{detailAddress}, #{mobile})
+    </insert>
+
+    <!-- 로그인 -->
+    <select id="login" resultType="com.example.jsonExam.member.UserDTO">
+        SELECT * FROM users WHERE id = #{id} AND pw = #{pw}
+    </select>
+
+    <!-- 아이디 중복 검사 -->
+    <select id="getUserById" resultType="com.example.jsonExam.member.UserDTO">
+        SELECT * FROM users WHERE id = #{id}
+    </select>
+
+    
+    
+    <!-- 회원 정보 수정 -->
+    <update id="updateUser">
+        UPDATE users 
+        SET pw = #{pw}, user_name = #{userName}, postcode = #{postcode}, 
+            address = #{address}, detail_address = #{detailAddress}, mobile = #{mobile}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 회원 삭제 -->
+    <delete id="deleteUser">
+        DELETE FROM users WHERE id = #{id}
+    </delete>
+
+</mapper>
